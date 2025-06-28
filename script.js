@@ -33,16 +33,47 @@ document.addEventListener("DOMContentLoaded", () => {
     // wipe out everything and redraw with the new coordinates when snake moves.
     gameArea.innerHTML = '';
 
+    snake.forEach((snakeCell) => {
+        const element = drawDiv(snakeCell.x, snakeCell.y, 'snake');
+        gameArea.appendChild(element);
+    })
+
      const foodElement = drawDiv(food.x, food.y, 'food');
      gameArea.appendChild(foodElement);
 
+    function moveFood() {
+        let newX, newY;
+        do {
+            newX = Math.floor(Math.random() * ((areaSize - cellSize)/cellSize) * cellSize);
+            newY = Math.floor(Math.random() * ((areaSize - cellSize)/cellSize) * cellSize);
+        } while(snake.some(snakeCell => snakeCell.x === newX && snakeCell.y === newY));
+
+        food = {x: newX, y: newY};
+    }
+
 
   }
+   function updateSnake() {
+    //1. Calculate new coordinate the snake head will go to
+    const newHead = {x:snake[0].x + dx, y:snake[0].y + dy}
+    snake.unshift(newHead); // add the new head
+    if(newHead.x === food.x && newHead.y === food.y) {
+        // collision
+        score +=5;
+        // don't pop the tail
 
+        //move the food
+        moveFood();
+    } else {
+        snake.pop(); // remove the last cell
+
+    }
+   } 
 
   // EVERY ONE SEC WE HAVE TO CHANGE SOMETHING BY THIS FUNCTION
   function gameLoop() {
     setInterval(() => {
+        updateSnake();
         drawScoreBoard();
         drawFoodAndSnake();
     }, 1000);
